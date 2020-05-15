@@ -8,7 +8,7 @@ import * as serviceWorker from './serviceWorker'
 import LogRocketSetup from './utils/LogRocketSetup'
 
 // setup LogRocket & Sentry
-LogRocketSetup()
+// LogRocketSetup()
 
 // custom console message
 console.clear()
