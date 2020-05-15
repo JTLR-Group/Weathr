@@ -1,4 +1,4 @@
-const fetchAddressInfo = (latlong) => {
+function fetchAddressInfo(latlong) {
   const url = `https://places-dsn.algolia.net/1/places/reverse?aroundLatLng=${latlong},&hitsPerPage=1&language=en`
   axios
     .get(url, {headers: HEADERS})
@@ -13,7 +13,7 @@ const fetchAddressInfo = (latlong) => {
     })
 }
 
-const fetchCities = (req) => {
+function fetchCities(req) {
   const {city, latlong} = req.query
   axios
     .request({
@@ -37,7 +37,7 @@ const fetchCities = (req) => {
     })
 }
 
-const fetchForecast = (latlong) => {
+function fetchForecast(latlong) {
   const url = `https://api.darksky.net/forecast/${DARKSKY_API_KEY}/${latlong}?extend=hourly&exclude=minutely,flags`
   axios
     .get(url)
