@@ -56,7 +56,7 @@ class AutoCompleteContainer extends Component {
 
         const {hits} = (
           await axios.get(
-            `${API_URL}?type=places?city=${this.state.city}&latlong=${latlong}`
+            `${API_URL}?type=places&city=${this.state.city}&latlong=${latlong}`
           )
         ).data
 
