@@ -13,7 +13,7 @@ const fetchAddressInfo = (latlong) => {
     })
 }
 
-const fetchCities(req) => {
+const fetchCities = (req) => {
   const {city, latlong} = req.query
   axios
     .request({
@@ -37,7 +37,7 @@ const fetchCities(req) => {
     })
 }
 
-const fetchForecast(latlong) {
+const fetchForecast = (latlong) => {
   const url = `https://api.darksky.net/forecast/${DARKSKY_API_KEY}/${latlong}?extend=hourly&exclude=minutely,flags`
   axios
     .get(url)
@@ -52,22 +52,21 @@ const fetchForecast(latlong) {
     })
 }
 
-
 module.exports = (req, res) => {
   const {type, latlong} = req.query
 
-  switch(type) {
+  switch (type) {
     case 'address':
-      fetchAddressInfo(latlong);
-      break;
+      fetchAddressInfo(latlong)
+      break
     case 'places':
-      fetchCities(req);
-      break;
+      fetchCities(req)
+      break
     case 'forecast':
-      fetchForecast(latlong);
-      break;
+      fetchForecast(latlong)
+      break
     default:
-      res.send('Welcome to Weather React API');
-      break;
+      res.send('Welcome to Weather React API')
+      break
   }
 }
