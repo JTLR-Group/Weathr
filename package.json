@@ -2,7 +2,6 @@
   "name": "weather-react",
   "version": "2.3.0",
   "private": true,
-  "homepage": "https://weather-react-vercel.now.sh",
   "dependencies": {
     "@sentry/browser": "^5.15.4",
     "@testing-library/jest-dom": "^4.2.4",
