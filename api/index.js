@@ -1,3 +1,3 @@
 module.exports = (req, res) => {
-  res.status(200).send(`Hello ${JSON.stringify(req)}!`)
+  res.status(200).json(req)
 }
