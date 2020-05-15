@@ -9,7 +9,7 @@ import isValid from './ValidityChecker'
 axiosRetry(axios, {retryDelay: axiosRetry.exponentialDelay})
 
 const getURL = (latlong) => {
-  return `${API_URL}/forecast/coords/${latlong}?extend=hourly&exclude=minutely,flags`
+  return `${API_URL}?type=forecast&latlong=${latlong}`
 }
 
 /**

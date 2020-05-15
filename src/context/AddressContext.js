@@ -70,7 +70,7 @@ class AddressContextProvider extends Component {
     let hit = {}
     try {
       const {hits} = (
-        await axios.get(`${API_URL}/address/coords/${latlong}`)
+        await axios.get(`${API_URL}?type=address&latlong=${latlong}`)
       ).data
       hit = hits[0]
 
