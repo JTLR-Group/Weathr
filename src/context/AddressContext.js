@@ -7,6 +7,7 @@ import validName from './../utils/ValidCityName'
 import fetchIPAddress from './../utils/FetchIPAddress'
 import API_URL from '../utils/API'
 import isValid from '../utils/ValidityChecker'
+import {isNil} from 'lodash-es'
 
 // const token = process.env.REACT_APP_IPINFO_TOKEN
 const AddressContext = React.createContext(null)
@@ -46,7 +47,7 @@ class AddressContextProvider extends Component {
       cityName: '',
       cityId: '',
     },
-    latlong: '',
+    latlong: null,
     favorites: [],
     updateState: this.updateState,
     updateFavorites: this.updateFavorites,
@@ -120,12 +121,18 @@ class AddressContextProvider extends Component {
         } = data
         const cityName = `${city}, ${region}, ${country_name}`
         this.updateWeatherUnit(country_code)
+
+        // check whether latitude and longitude are strings which are NaN as well as if value is null or undefined
+        const Latitude =
+          isNil(latitude) || isNaN(Number(latitude)) ? '00' : latitude
+        const Longitude =
+          isNil(longitude) || isNaN(Number(longitude)) ? '00' : longitude
         this.updateState({
           showLoader: false,
           address: {
             cityName,
           },
-          latlong: this.formatCoords(latitude, longitude),
+          latlong: this.formatCoords(Latitude, Longitude),
         })
       } else {
         this.updateState({showLoader: false})

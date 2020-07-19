@@ -1,7 +1,6 @@
 import React, {Component, Fragment} from 'react'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
-import debounce from 'lodash/debounce'
 import './AutoCompleteStyle.scss'
 import AddressComponent from '../../components/address/AddressComponent'
 import LoaderComponent from '../../components/loader/LoaderComponent'
@@ -13,18 +12,22 @@ import {Event} from '../../utils/ReactAnalytics'
 import validName from '../../utils/ValidCityName'
 import API_URL from './../../utils/API'
 import isValid from '../../utils/ValidityChecker'
+import {debounce, isNil} from 'lodash-es'
 
 // Exponential back-off retry delay between requests
 axiosRetry(axios, {retryDelay: axiosRetry.exponentialDelay})
 
 class AutoCompleteContainer extends Component {
   static contextType = AddressContext
+  listRef = React.createRef(undefined)
   state = {
     showCaret: false,
     showAddresses: false,
     showLoader: false,
     city: '',
     addresses: [],
+    selectedAddressIndex: 0,
+    scrollOffset: 0,
     errorMessage: '',
   }
 
@@ -33,7 +36,7 @@ class AutoCompleteContainer extends Component {
   }
 
   // debounced function
-  debounceAddress = debounce(this.getAddresses, 1250)
+  debounceAddress = debounce(this.getAddresses, 1000)
 
   searchCity = (event) => {
     this.setState({city: event.target.value, errorMessage: ''})
@@ -50,9 +53,10 @@ class AutoCompleteContainer extends Component {
         this.setState({showLoader: true})
         // the below latlong check is just a workaround for accessing correct api route
         // otherwise, no matter how good the city name is, when latlong is empty user will get 404 since there is no route without latlong on the api server
-        const latlong = isValid(this.context.latlong)
-          ? this.context.latlong
-          : '00,00'
+        const latlong =
+          !isNil(this.context.latlong) && !isNaN(Number(this.context.latlong))
+            ? this.context.latlong
+            : '00,00'
 
         const {hits} = (
           await axios.get(
@@ -104,7 +108,7 @@ class AutoCompleteContainer extends Component {
           'Something went wrong. Please try again or search with a different city name!'
         )
       } finally {
-        this.setState({showLoader: false})
+        this.setState({showLoader: false, selectedAddressIndex: 0})
       }
     } else {
       this.clearState()
@@ -141,12 +145,46 @@ class AutoCompleteContainer extends Component {
     }
   }
 
+  keyCodeHandler = (e) => {
+    if (e.keyCode && (e.keyCode === 38 || e.keyCode === 40)) {
+      // scroll behavior inside the address list corresponding to up/down arrow key
+      this.listRef.current.scrollTo({
+        left: 0,
+        top: this.state.selectedAddressIndex * 30,
+        behavior: 'auto',
+      })
+
+      if (e.keyCode === 38) {
+        // up arrow
+        this.setState((prevState) => {
+          return {
+            selectedAddressIndex: Math.max(
+              0,
+              prevState.selectedAddressIndex - 1
+            ),
+          }
+        })
+      } else if (e.keyCode === 40) {
+        // down arrow
+        this.setState((prevState) => {
+          return {
+            selectedAddressIndex: Math.min(
+              prevState.selectedAddressIndex + 1,
+              this.state.addresses.length - 1
+            ),
+          }
+        })
+      }
+    }
+  }
+
   clearState() {
     this.setState({
       showCaret: false,
       showAddresses: false,
       showLoader: false,
       addresses: [],
+      selectedAddressIndex: 0,
       errorMessage: '',
     })
   }
@@ -161,6 +199,7 @@ class AutoCompleteContainer extends Component {
               showCaret={this.state.showCaret}
               showAddresses={this.state.showAddresses}
               citySearch={this.searchCity}
+              keyPressed={this.keyCodeHandler}
               caretClicked={this.toggleAddresses}
             />
           </div>
@@ -171,11 +210,15 @@ class AutoCompleteContainer extends Component {
               <LoaderComponent />
             ) : (
               this.state.showAddresses && (
-                <div className='mx-10 mt-0 border-solid border-2 border-gray-400 rounded-b-xl address-list'>
+                <div
+                  className='mx-10 mt-0 border-solid border-2 border-gray-400 rounded-b-xl address-list'
+                  ref={this.listRef}>
                   {this.state.addresses.map((address, index) => {
                     return (
                       <AddressComponent
                         address={address}
+                        selectedAddressIndex={this.state.selectedAddressIndex}
+                        index={index}
                         key={index}
                         addressSelected={() => this.setCity(address)}
                       />
